@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>INDEX — AI Archival File Management System</title>
+  <meta name="description" content="Personal archival document repository with AI auto-tagging, natural-language search, and per-file conversational inquiries.">
+  
+  <!-- Typography: Fraunces (Display Serif) + IBM Plex Sans (Body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Navigation Header -->
+    <header class="catalog-header">
+      <div class="header-left">
+        <button id="sidebarToggleBtn" class="icon-btn mobile-only" title="Toggle Navigation">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="brand">
+          <div class="brand-crest">
+            <i class="fa-solid fa-book-bookmark"></i>
+          </div>
+          <div class="brand-text">
+            <h1 class="brand-title">INDEX</h1>
+            <span class="brand-subtitle">Archival & Intelligence Catalog</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <!-- Dual-Mode Search Bar -->
+        <div class="search-container">
+          <div class="search-mode-pill">
+            <button id="searchModeAsk" class="mode-btn active" data-mode="ask" title="Natural language query with AI matching">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> Ask AI
+            </button>
+            <button id="searchModeFilter" class="mode-btn" data-mode="filter" title="Standard keyword filtering">
+              <i class="fa-solid fa-filter"></i> Keyword
+            </button>
+          </div>
+          <div class="search-input-wrapper">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input 
+              type="text" 
+              id="searchInput" 
+              placeholder="Search by natural query e.g. 'budget spreadsheets from last month'..."
+              autocomplete="off"
+            >
+            <button id="searchClearBtn" class="search-clear-btn hidden" title="Clear Search">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+            <button id="searchSubmitBtn" class="search-submit-btn">Search</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <!-- AI System Status Pill -->
+        <div id="aiStatusBadge" class="ai-status-pill" title="AI Service Status">
+          <span class="status-dot"></span>
+          <span id="aiStatusText">AI Ready</span>
+        </div>
+
+        <!-- Light/Dark Mode Switcher -->
+        <button id="themeToggleBtn" class="icon-btn" title="Toggle Light / Archival Dark Mode">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+
+        <!-- Quick Upload Action -->
+        <button id="headerUploadBtn" class="primary-btn">
+          <i class="fa-solid fa-feather"></i>
+          <span>Catalog File</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Application Shell -->
+    <div class="app-body">
+      <!-- Left Sidebar: Folders & Tag Cloud -->
+      <aside id="sidebar" class="catalog-sidebar">
+        <!-- Navigation Sections -->
+        <div class="sidebar-section">
+          <div class="section-header">
+            <span class="section-title">Navigation</span>
+          </div>
+          <ul class="nav-list">
+            <li class="nav-item active" data-filter="all">
+              <i class="fa-solid fa-layer-group"></i>
+              <span class="nav-label">All Documents</span>
+              <span id="totalFilesBadge" class="count-badge">0</span>
+            </li>
+            <li class="nav-item" data-filter="uncategorized">
+              <i class="fa-regular fa-folder-open"></i>
+              <span class="nav-label">Uncategorized</span>
+              <span id="uncategorizedBadge" class="count-badge">0</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Folders Drawer Section -->
+        <div class="sidebar-section">
+          <div class="section-header">
+            <span class="section-title">Collections</span>
+            <button id="newFolderBtn" class="text-action-btn" title="New Folder">
+              <i class="fa-solid fa-plus"></i> New
+            </button>
+          </div>
+          <ul id="folderList" class="folder-list">
+            <!-- Populated dynamically -->
+          </ul>
+        </div>
+
+        <!-- Tag Cloud Section -->
+        <div class="sidebar-section">
+          <div class="section-header">
+            <span class="section-title">Subject Index</span>
+            <button id="clearTagFilterBtn" class="text-action-btn hidden" title="Clear tag selection">
+              Clear
+            </button>
+          </div>
+          <div id="tagCloud" class="tag-cloud">
+            <div class="empty-subtext">No tags cataloged yet.</div>
+          </div>
+        </div>
+
+        <!-- Catalog Metadata Footer -->
+        <div class="sidebar-footer">
+          <div class="archive-seal">
+            <i class="fa-solid fa-stamp"></i>
+            <div class="seal-details">
+              <span>CSBS Archival System</span>
+              <small id="storageUsageText">0 KB archived</small>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Central Catalog Area -->
+      <main class="catalog-main">
+        <!-- Dropzone / Ingestion Zone -->
+        <div id="dropzone" class="ingestion-dropzone">
+          <input type="file" id="fileInput" multiple class="file-input-hidden">
+          <div class="dropzone-content">
+            <div class="dropzone-icon">
+              <i class="fa-solid fa-box-archive"></i>
+            </div>
+            <div class="dropzone-text">
+              <h3>Ingest Documents into Index</h3>
+              <p>Drag & drop files here, or <span class="browse-link">browse your disk</span></p>
+              <div class="format-chips">
+                <span>.txt</span>
+                <span>.md</span>
+                <span>.csv</span>
+                <span>.json</span>
+                <span>.pdf</span>
+                <span>.py / code</span>
+              </div>
+            </div>
+          </div>
+          <div id="uploadProgress" class="upload-progress-bar hidden">
+            <div class="progress-fill"></div>
+            <span class="progress-label">Ingesting & Auto-tagging with AI...</span>
+          </div>
+        </div>
+
+        <!-- Search / Filter Results Banner (Shown during Ask AI or filtered modes) -->
+        <div id="searchBanner" class="search-banner hidden">
+          <div class="banner-icon">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+          </div>
+          <div class="banner-content">
+            <div class="banner-title">
+              <span id="bannerHeading">AI Search Synthesis</span>
+              <button id="clearSearchBannerBtn" class="banner-close-btn" title="Exit Search Mode">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+            <p id="bannerExplanation">Explanation appears here...</p>
+          </div>
+        </div>
+
+        <!-- Catalog Toolbar: Breadcrumbs, Sort, View Layout -->
+        <div class="catalog-toolbar">
+          <div class="toolbar-left">
+            <div id="catalogBreadcrumb" class="catalog-breadcrumb">
+              <span class="crumb-root"><i class="fa-solid fa-compass"></i> Index Archive</span>
+              <span class="crumb-separator">/</span>
+              <span id="currentViewName" class="crumb-active">All Documents</span>
+            </div>
+            <span id="resultCountPill" class="result-count">0 items</span>
+          </div>
+
+          <div class="toolbar-right">
+            <label for="sortBySelect" class="sort-label">Sort:</label>
+            <select id="sortBySelect" class="catalog-select">
+              <option value="newest">Newest Cataloged</option>
+              <option value="oldest">Oldest First</option>
+              <option value="name">Title (A-Z)</option>
+              <option value="size">File Size</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- File Cards Grid View -->
+        <div id="fileGrid" class="catalog-grid">
+          <!-- Populated dynamically via app.js -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state hidden">
+          <div class="empty-monogram">🗎</div>
+          <h3 id="emptyTitle">Archive Chamber is Empty</h3>
+          <p id="emptyDescription">Drop files above or click Catalog File to commence auto-tagging and indexing.</p>
+          <button id="emptyUploadBtn" class="secondary-btn">Select Files to Catalog</button>
+        </div>
+      </main>
+    </div>
+
+    <!-- Slide-over Inspector & Chat Panel -->
+    <div id="inspectorBackdrop" class="inspector-backdrop hidden"></div>
+    <aside id="inspectorDrawer" class="inspector-drawer">
+      <!-- Drawer Header -->
+      <div class="drawer-header">
+        <div class="drawer-title-box">
+          <span class="drawer-tag-stamp" id="drawerFileExt">TXT</span>
+          <h2 id="drawerFileName" class="drawer-title">Document Title</h2>
+        </div>
+        <div class="drawer-actions">
+          <a id="drawerDownloadBtn" class="icon-btn" title="Download File" href="#" download>
+            <i class="fa-solid fa-download"></i>
+          </a>
+          <button id="drawerDeleteBtn" class="icon-btn danger-hover" title="Delete File">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+          <button id="drawerCloseBtn" class="icon-btn" title="Close Panel">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Drawer Tabs -->
+      <div class="drawer-tabs">
+        <button id="tabDossierBtn" class="tab-btn active" data-tab="dossier">
+          <i class="fa-solid fa-scroll"></i> Dossier & Metadata
+        </button>
+        <button id="tabChatBtn" class="tab-btn" data-tab="chat">
+          <i class="fa-solid fa-comments"></i> Inquire with AI
+        </button>
+      </div>
+
+      <!-- Tab Content: Dossier -->
+      <div id="tabDossier" class="drawer-tab-content active">
+        <!-- AI Summary Box -->
+        <div class="dossier-card ai-summary-card">
+          <div class="card-caption">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>AI Executive Summary</span>
+            <button id="reprocessAiBtn" class="card-mini-btn" title="Re-run AI extraction">
+              <i class="fa-solid fa-arrows-rotate"></i> Re-analyze
+            </button>
+          </div>
+          <p id="drawerSummary" class="ai-summary-text">No summary generated yet.</p>
+        </div>
+
+        <!-- Tags Management -->
+        <div class="dossier-card">
+          <div class="card-caption">
+            <i class="fa-solid fa-tags"></i>
+            <span>Subject Tags</span>
+          </div>
+          <div id="drawerTagList" class="drawer-tag-container">
+            <!-- Dynamic tags -->
+          </div>
+          <form id="addTagForm" class="add-tag-inline-form">
+            <input type="text" id="newTagInput" placeholder="Add manual tag..." autocomplete="off">
+            <button type="submit" class="mini-btn">Add</button>
+          </form>
+        </div>
+
+        <!-- Folder Placement -->
+        <div class="dossier-card">
+          <div class="card-caption">
+            <i class="fa-solid fa-folder-tree"></i>
+            <span>Collection / Folder</span>
+          </div>
+          <div class="folder-select-box">
+            <select id="drawerFolderSelect" class="catalog-select full-width">
+              <option value="0">Uncategorized</option>
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+        </div>
+
+        <!-- Physical Metadata -->
+        <div class="dossier-card">
+          <div class="card-caption">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>Physical Attributes</span>
+          </div>
+          <div class="metadata-grid">
+            <div class="meta-item">
+              <span class="meta-label">File Size</span>
+              <span id="drawerFileSize" class="meta-val">0 KB</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">MIME Type</span>
+              <span id="drawerMime" class="meta-val">text/plain</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Cataloged Date</span>
+              <span id="drawerDate" class="meta-val">Oct 1, 2026</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Storage Path</span>
+              <span id="drawerPath" class="meta-val mono-val">data/uploads/...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Extracted Text Preview -->
+        <div class="dossier-card">
+          <div class="card-caption">
+            <i class="fa-solid fa-file-lines"></i>
+            <span>Extracted Text Content</span>
+            <button id="copyExtractedBtn" class="card-mini-btn" title="Copy text to clipboard">
+              <i class="fa-regular fa-copy"></i> Copy
+            </button>
+          </div>
+          <div id="drawerTextPreview" class="text-preview-box">
+            No readable text extracted.
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content: AI Document Chat -->
+      <div id="tabChat" class="drawer-tab-content">
+        <div class="chat-intro-banner">
+          <i class="fa-solid fa-feather-pointed"></i>
+          <div>
+            <strong>Ask anything about this document.</strong>
+            <p>Answers are grounded strictly in the extracted content with turn history preserved.</p>
+          </div>
+          <button id="clearChatHistoryBtn" class="text-action-btn danger-hover" title="Reset Conversation">
+            <i class="fa-solid fa-trash-can"></i> Clear
+          </button>
+        </div>
+
+        <!-- Suggested Questions Prompt Chips -->
+        <div class="starter-chips">
+          <button class="chip-btn" data-query="Provide a bullet-point breakdown of the key information.">
+            Bullet breakdown
+          </button>
+          <button class="chip-btn" data-query="What are the primary figures, metrics, or financial amounts?">
+            Extract metrics
+          </button>
+          <button class="chip-btn" data-query="What action items or recommendations are outlined?">
+            Action items
+          </button>
+        </div>
+
+        <!-- Chat Message Log -->
+        <div id="chatMessageLog" class="chat-message-log">
+          <!-- Dynamic chat bubbles -->
+        </div>
+
+        <!-- Chat Input Form -->
+        <form id="chatForm" class="chat-input-form">
+          <div class="chat-input-row">
+            <textarea 
+              id="chatInputText" 
+              placeholder="Inquire with the archivist regarding this document..." 
+              rows="1"
+            ></textarea>
+            <button type="submit" id="chatSendBtn" class="chat-send-btn" title="Send Question">
+              <i class="fa-solid fa-arrow-up"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+    </aside>
+
+    <!-- Create Folder Modal -->
+    <div id="newFolderModal" class="modal-backdrop hidden">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3>Create New Archive Collection</h3>
+          <button id="closeFolderModalBtn" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="createFolderForm" class="modal-form">
+          <div class="form-group">
+            <label for="folderNameInput">Collection Name</label>
+            <input type="text" id="folderNameInput" placeholder="e.g. CSBS Lab Research" required>
+          </div>
+          <div class="form-group">
+            <label for="folderDescInput">Description (Optional)</label>
+            <input type="text" id="folderDescInput" placeholder="Brief note on collection purpose">
+          </div>
+          <div class="form-group">
+            <label>Color Foil</label>
+            <div class="color-palette">
+              <label class="color-swatch"><input type="radio" name="folderColor" value="#C09543" checked><span style="background:#C09543"></span></label>
+              <label class="color-swatch"><input type="radio" name="folderColor" value="#487E5A"><span style="background:#487E5A"></span></label>
+              <label class="color-swatch"><input type="radio" name="folderColor" value="#8C5896"><span style="background:#8C5896"></span></label>
+              <label class="color-swatch"><input type="radio" name="folderColor" value="#A34839"><span style="background:#A34839"></span></label>
+              <label class="color-swatch"><input type="radio" name="folderColor" value="#3E6B89"><span style="background:#3E6B89"></span></label>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button type="button" id="cancelFolderModalBtn" class="secondary-btn">Cancel</button>
+            <button type="submit" class="primary-btn">Create Collection</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="toast-container"></div>
+  </div>
+
+  <!-- Client-side Scripts -->
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

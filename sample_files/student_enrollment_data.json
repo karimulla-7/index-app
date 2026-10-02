@@ -1,0 +1,31 @@
+{
+  "academic_year": "2024-2025",
+  "program": "Computer Science and Business Systems (CSBS)",
+  "department": "School of Computing and Enterprise Intelligence",
+  "students": [
+    {
+      "roll_no": "CSBS-2024-001",
+      "name": "Aarav Sharma",
+      "semester": 6,
+      "gpa": 3.88,
+      "major_focus": "Enterprise Systems & Cloud",
+      "registered_courses": ["Data Structures", "Financial Accounting", "Database Management", "AI Systems"]
+    },
+    {
+      "roll_no": "CSBS-2024-002",
+      "name": "Diya Nair",
+      "semester": 6,
+      "gpa": 3.94,
+      "major_focus": "Data Analytics & Corporate Finance",
+      "registered_courses": ["Predictive Analytics", "Business Ethics", "Distributed Computing", "AI Systems"]
+    },
+    {
+      "roll_no": "CSBS-2024-003",
+      "name": "Rohan Patel",
+      "semester": 6,
+      "gpa": 3.75,
+      "major_focus": "Information Security & Audit",
+      "registered_courses": ["Enterprise Architecture", "Cybersecurity", "Corporate Finance", "Web Engineering"]
+    }
+  ]
+}

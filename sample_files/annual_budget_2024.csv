@@ -1,0 +1,13 @@
+Department,Quarter,Category,Allocated_USD,Spent_USD,Variance_USD,Notes
+Engineering,Q1,Cloud Infrastructure,45000,42100,2900,Under budget due to spot instances
+Engineering,Q1,Software Licenses,18000,19200,-1200,Added extra IDE licenses
+Data Science,Q1,GPU Compute Clusters,35000,34500,500,Gemini and model training workloads
+Product & Design,Q1,Prototyping Tools,8000,7500,500,Figma and UX research tools
+Marketing,Q1,Campaign Ads,25000,24800,200,Q1 product launch promotion
+Human Resources,Q1,Recruitment & Training,12000,10500,1500,Campus hiring drive in March
+Operations,Q1,Office & Facilities,15000,14800,200,Maintenance and utilities
+Engineering,Q2,Cloud Infrastructure,48000,47500,500,Scaled up replica database
+Engineering,Q2,Software Licenses,18000,17800,200,Contract renegotiation
+Data Science,Q2,GPU Compute Clusters,40000,41200,-1200,Heavy hyperparameter fine-tuning
+Operations,Q2,Hardware Refresh,22000,21000,1000,Developer laptop upgrades
+Total,,,286000,281600,4400,Overall fiscal variance remains positive
