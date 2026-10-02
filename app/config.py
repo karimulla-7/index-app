@@ -33,7 +33,7 @@ AI_PROVIDER = os.getenv("AI_PROVIDER", "gemini").lower()
 
 # Google Gemini Settings
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip()
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.8-flash").strip()
 
 # OpenAI Compatible Settings (Optional alternative)
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
